@@ -8,14 +8,13 @@ public class Main {
 
         Chief chief = new Chief(args);
 
-
         Thread t = new Thread(chief);
         t.start();
-
         try {
             t.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 }

@@ -1,22 +1,20 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Chief implements Runnable{
+public class Chief implements Runnable {
 
 
-
-    /**
-     * Pocet nalezenych bloku.
-     */
-    private int cBlock;
-
+    private int resIndex;
+    private List<Integer> resources;
     /**
      * Pocet nalezenych zdroju
      */
-    private int cSource;
+    private int cSource = 0;
+
     /** Vstupni soubor */
-    private BufferedReader in;
+    public BufferedWriter out;
+
 
     /** Pocet delniku */
     private int cWorker;
@@ -24,22 +22,46 @@ public class Chief implements Runnable{
     /** Doba zpracovani */
     private int tWorker;
 
+    private Worker[] workers;
+
     /** Konstruktor tridy Chief.
      * Nacte parametry prikazove radky a zpracuje je.
      * @param args parametry prikazove radky.
      */
     public Chief(String[] args) {
-        System.out.println("Predak - start simulace.");
-        System.out.println("Predak - inicializace promennych z prikazoveho radku.");
-        String inputFile = args[1];
-        System.out.println("Input file = \"" + inputFile + "\".");
-        String outputFile = args[3];
-        System.out.println("Output file = \"" + outputFile + "\".");
 
         try {
-            cWorker = Integer.parseInt(args[5]);
+
+            // Output file
+            String outputFile = args[3];
+            FileWriter fw = new FileWriter(outputFile);
+            out = new BufferedWriter(fw);
+            out.write("Output file = \"" + outputFile + "\".\n");
+            System.out.println("Output file = \"" + outputFile + "\".");
+
+            // Input file
+            String inputFile = args[1];
+            System.out.println("Input file = \"" + inputFile + "\".");
+            out.write("Input file = \"" + inputFile + "\"."+ "\n");
+            initResources(inputFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Predak - start simulace."+ "\n");
+        try {
+            out.write("Predak - start simulace.\nPredak - inicializace promennych z prikazoveho radku."+ "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Predak - inicializace promennych z prikazoveho radku.");
+
+
+        try {
+            this.cWorker = Integer.parseInt(args[5]);
             System.out.println("Pocet delniku: " + cWorker);
-        } catch (NumberFormatException e){
+            out.write("Pocet delniku: " + cWorker + "\n");
+            workers = new Worker[this.cWorker];
+        } catch (NumberFormatException | IOException e){
             System.err.println("Wrong parameter -cWorker");
             System.exit(1);
         }
@@ -47,7 +69,8 @@ public class Chief implements Runnable{
         try {
             tWorker = Integer.parseInt(args[7]);
             System.out.println("Delka zpracovani bloku: " + tWorker);
-        } catch (NumberFormatException e) {
+            out.write("Delka zpracovani bloku: " + tWorker + "\n");
+        } catch (NumberFormatException | IOException e) {
             System.err.println("Wrong parameter -tWorker");
             System.exit(1);
         }
@@ -55,21 +78,24 @@ public class Chief implements Runnable{
         try {
             int capLorry = Integer.parseInt(args[9]);
             System.out.println("Kapacita nakladaku: " + capLorry);
-        } catch (NumberFormatException e) {
+            out.write("Kapacita nakladaku: " + capLorry + "\n");
+        } catch (NumberFormatException | IOException e) {
             System.err.println("Wrong parameter -capLorry");
             System.exit(1);
         }
         try {
             int tLorry = Integer.parseInt(args[9]);
-            System.out.println("Cas jizdy nakladaku: " + tLorry);
-        } catch (NumberFormatException e) {
+            System.out.println("Cas jizdy nakladaku: " + tLorry + "\n");
+            out.write("Cas jizdy nakladaku: " + tLorry);
+        } catch (NumberFormatException | IOException e) {
             System.err.println("Wrong parameter -tLorry");
             System.exit(1);
         }
         try {
             int capFerry = Integer.parseInt(args[13]);
             System.out.println("Kapacita lodi: " + capFerry);
-        } catch (NumberFormatException e) {
+            out.write("Kapacita lodi: " + capFerry + "\n");
+        } catch (NumberFormatException | IOException e) {
             System.err.println("Wrong parameter -capFerry");
             System.exit(1);
         }
@@ -83,32 +109,66 @@ public class Chief implements Runnable{
     @Override
     public void run() {
 
-        System.out.println("Předák - vytváření dělníků.");
+        try {
+            out.write("Předák - vytváření dělníků.\n");
 
+            System.out.println("Předák - vytváření dělníků.");
+
+            for (int i  = 0; i < cWorker; i++) {
+                //workers[i] = new Worker("Delnik" + (i+1), this, tWorker);
+
+            }
+            out.close();
+          //  in.close();
+        }catch (IOException e){
+            System.err.println("Problem s buffered writerem.");
+        }
     }
 
+    /**
+     * Ziskani zdroje pro kazdeho delnika.
+     * @param jmeno jmeno delnika
+     * @return vrati pocet bloku
+     */
+    public synchronized int getSources(String jmeno) { // TODO vymyslet vhodny nazev
 
-    public synchronized String getSource(String jmeno) {
 
-        String jokeText = "";
-        String line;
 
-        System.out.println(jmeno + " - Zadam vtip.");
 
+        System.out.println(jmeno + " - neni uz co tezit");
+        return -1;
+    }
+
+    private void initResources(String inputFile) {
+        resources = new ArrayList<>();
+        int blocksCount = 0;
+        FileReader fr = null;
         try {
-            while ((line = in.readLine()) != null) {
-                if (line.trim().equals("%")) {
-                    System.out.println(jmeno + " - Vtip nacten (" + jokeID + ").");
-                    jokeID++;
-                    return jokeText.trim();
-                }
-                jokeText += line + "\n";
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+            fr = new FileReader(inputFile);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        System.out.println(jmeno + " - Neni co cist.");
-        return "$$skonci$$";
+        BufferedReader in = new BufferedReader(fr);
+
+        int ch;
+        try {
+            while ((ch = in.read()) != -1 || blocksCount > 0) {
+                if (ch == 'x') {
+                    blocksCount++;
+                    continue;
+                }
+                if (blocksCount > 0) {
+                    resources.add(resIndex, blocksCount);
+                    resIndex++;
+                    blocksCount = 0;
+                }
+            }
+            System.out.println(resources.toString());
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }
