@@ -1,14 +1,24 @@
+/**
+ * Class witch represents ferry
+ * @author Jan Rubas
+ * @version 1.2
+ */
 public class Ferry {
 
-    private int maxCapacity;
-    private int currCapacity;
+    /** barrier */
+    static Barrier barrier;
 
+    /**
+     * Class constructor.
+     */
     public Ferry() {
-        this.maxCapacity = CommandLineArgs.capFerry;
-        this.currCapacity = 0;
+        // max capacity of ferry
+        int maxCapacity = CommandLineArgs.capFerry;
+        barrier = new Barrier(maxCapacity /CommandLineArgs.capLorry);
     }
 
-    public void loadOnLorry(Lorry lorry) {
-        if (lorry.getCurrCapacity() == lorry.getCurrCapacity()) barrier.synchronize();
+    /** load lorry capacity to ferry */
+    public void loadOnFerry(Lorry lorry) {
+        if (lorry.getCurrCapacity() == lorry.getMaxCapacity()) barrier.synchronize();
     }
 }

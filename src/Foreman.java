@@ -22,7 +22,7 @@ public class Foreman implements Runnable {
     /**
      * Count of workers without work (in the end of mining)
      */
-    public static int withoutWork;
+    private int withoutWork;
 
     private Worker[] workers;
 
@@ -30,13 +30,13 @@ public class Foreman implements Runnable {
      * Constructor
      * Initialize class parameters and switch new thread
      *
-     * @param args command lines params
      */
-    public Foreman(String[] args) {
+    public Foreman() {
 
         try {
 
-            // Init Output file
+            // Init Output file\
+            System.out.println(CommandLineArgs.outputFile);
             FileWriter fw = new FileWriter(CommandLineArgs.outputFile);
             out = new BufferedWriter(fw);
             out.write("Output file = \"" + CommandLineArgs.outputFile + "\".\n");
@@ -102,15 +102,17 @@ public class Foreman implements Runnable {
                 for (Worker worker :
                         workers) {
                     worker.thread.join();
+                    worker.lorry.thread.join();
 
                 }
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             out.close(); // close output file
         } catch (IOException e) {
-            System.err.println("Problems with buffered writer.");
+            System.err.println("Problem with buffered writer.");
         }
     }
 
@@ -138,7 +140,6 @@ public class Foreman implements Runnable {
 
     /**
      * Foreman initialize resources.
-     *
      * @param inputFile input
      */
     private void initResources(String inputFile) {
@@ -175,7 +176,19 @@ public class Foreman implements Runnable {
         }
     }
 
+    /**
+     * Get count of workers without work
+     * @return count of workers without work
+     */
     public int getWithoutWork() {
         return withoutWork;
+    }
+
+    /**
+     * Get count of workers
+     * @return count of workers
+     */
+    public int getCWorker() {
+        return CommandLineArgs.cWorker;
     }
 }

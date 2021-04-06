@@ -11,7 +11,7 @@ public class Worker implements Runnable{
     public Thread thread;
     private final String name;
     private final int tWorkerMax;
-
+    public static boolean isLast;
     public static Lorry lorry = new Lorry();
     public final Foreman foreman;
 
@@ -29,7 +29,6 @@ public class Worker implements Runnable{
 
     @Override
     public void run() {
-
 
         int blocksCount;
         // is there more resources
@@ -56,22 +55,28 @@ public class Worker implements Runnable{
                     if (!lorry.loadOnLorry(this, lastBlock)) i--;
                 }
 
-            if (blocksCount == foreman.getWithoutWork() && lorry.getCurrCapacity() != 0) {
-
-
-                if(!lorry.thread.isAlive()) {
-                    lorry.run();
-                }
-            }
-
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
 
 
         }
+        System.out.println("Bez prace: " + foreman.getWithoutWork() + " pocet delniku: " + foreman.getCWorker() + " " + thread.getName());
+        // if lorry isn't full and workers can't any blocks for mining
+        if (foreman.getCWorker() == foreman.getWithoutWork() && lorry.getCurrCapacity() != 0) {
+            isLast = true;
+
+            if(!lorry.thread.isAlive()) {
+                System.out.println("Last worker sent last lorry to ferry.");
+                lorry.thread.start();
+            }
+        }
     }
 
+    /**
+     * Method, which will be simulate mining one resource
+     * @param blocksCount count of blocks in resource
+     */
     private void miningResource(int blocksCount) throws InterruptedException, IOException {
         Random r = new Random();
         int waitForMining;
@@ -83,6 +88,7 @@ public class Worker implements Runnable{
             long endMiningBlock = System.currentTimeMillis();
             String data = String.format("%.2f;%s;block mined;%.2f\n", (double)(endMiningBlock-Main.start)/1000,
                     this.name, (double)(endMiningBlock-startMiningBlock)/1000);
+           // System.out.println(data);
             foreman.out.write(data);
         }
     }

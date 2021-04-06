@@ -4,17 +4,23 @@ import java.util.Arrays;
 /**
  * Main class
  * @author Jan Rubas
+ * @version 1.0
  */
 public class Main {
 
-
+    /** start simulation */
     public static long start;
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         System.out.println(Arrays.toString(args));
 
+        CommandLineArgs arguments = new CommandLineArgs(args);
         start = System.currentTimeMillis();
-        Foreman foreman = new Foreman(args); // instance of foreman
+        Foreman foreman = new Foreman(); // instance of foreman
 
 
         try {
@@ -26,6 +32,11 @@ public class Main {
     }
 }
 
+/**
+ * Class witch initialize program arguments
+ * @author Jan Rubas
+ * @version 1.2
+ */
 class CommandLineArgs {
 
     /**
@@ -38,12 +49,21 @@ class CommandLineArgs {
      */
     public static int tWorker;
 
+    /** Lorry capacity */
     public static int capLorry;
+    /** Lorry max time to traveling to END and Ferry */
     public static int tLorry;
+    /** Ferry capacity */
     public static int capFerry;
+    /** input file */
     public static String inputFile;
+    /** output file */
     public static String outputFile;
 
+    /**
+     * Init program parameters.
+     * @param args arguments in array
+     */
     public CommandLineArgs(String[] args) {
         // Output file
         outputFile = args[3];
