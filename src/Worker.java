@@ -7,17 +7,36 @@ import java.util.Random;
  */
 public class Worker implements Runnable{
 
+    /**
+     * Getter for total count of blocks.
+     * @return total count of blocks
+     */
+    public int getTotalCountOfMinedBlocks() {
+        return totalCountOfMinedBlocks;
+    }
 
+    /** total count of blocks */
+    private int totalCountOfMinedBlocks = 0;
+
+    /** thread */
     public Thread thread;
+
+    /** Worker's name */
     private final String name;
+    /** max time for mining */
     private final int tWorkerMax;
-    public static boolean isLast;
-    public static Lorry lorry = new Lorry();
+
+    /** foreman */
     public final Foreman foreman;
 
+    /**
+     * Constructor
+     * @param name worker name
+     * @param foreman foreman
+     * @param tWorkerMax max time for working
+     */
     public Worker(String name, Foreman foreman, int tWorkerMax) {
         this.tWorkerMax = tWorkerMax;
-//        this.blocksCountSum = 0;
         this.foreman = foreman;
         this.name = name;
         thread = new Thread(this, name);
@@ -26,23 +45,25 @@ public class Worker implements Runnable{
     }
 
 
-
+    /**
+     * Method for pararel thread.
+     */
     @Override
     public void run() {
 
         int blocksCount;
         // is there more resources
         while ((blocksCount = foreman.getResources(thread.getName())) != -1) {  // if is returned -1, the resources were mined
-            System.out.println(thread.getName() + " nese " + blocksCount + " zdroje.");
+//            System.out.println(thread.getName() + " carries " + blocksCount + " blocks.");
             try {
-                foreman.out.write(thread.getName() + " nese " + blocksCount + " zdroje.\n");
+//                Foreman.out.write(thread.getName() + " carries " + blocksCount + " blocks.\n");
 
                 //////////
                 // start mining resource
                 long startMiningRes = System.currentTimeMillis();
                 miningResource(blocksCount);
                 long endMiningRes = System.currentTimeMillis();
-                foreman.out.write(String.format("%.2f;%s;resource mined;%.2f\n", (double)(endMiningRes-Main.start)/1000,
+                Foreman.out.write(String.format("%.2f;%s;resource mined;%.2f\n", (double)(endMiningRes-Main.start)/1000,
                         this.name, (double)(endMiningRes-startMiningRes)/1000));
                 //////////
 
@@ -51,25 +72,21 @@ public class Worker implements Runnable{
                 boolean lastBlock = false;
                 for (int i = 0; i < blocksCount; i++) {
                     if (i == blocksCount-1) lastBlock = true;
+                    // if lorry list is empty
+                    if (foreman.lorries.isEmpty()) {
+                        foreman.lorries.add(new Lorry());
+                    }
                     // load source by source
-                    if (!lorry.loadOnLorry(this, lastBlock)) i--;
+                    if (!foreman.lorries.get(foreman.lorries.size()-1).loadOnLorry(this, lastBlock)) i--;
                 }
+
+                totalCountOfMinedBlocks += blocksCount;
 
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
 
 
-        }
-        System.out.println("Bez prace: " + foreman.getWithoutWork() + " pocet delniku: " + foreman.getCWorker() + " " + thread.getName());
-        // if lorry isn't full and workers can't any blocks for mining
-        if (foreman.getCWorker() == foreman.getWithoutWork() && lorry.getCurrCapacity() != 0) {
-            isLast = true;
-
-            if(!lorry.thread.isAlive()) {
-                System.out.println("Last worker sent last lorry to ferry.");
-                lorry.thread.start();
-            }
         }
     }
 
@@ -92,4 +109,7 @@ public class Worker implements Runnable{
             foreman.out.write(data);
         }
     }
+
+
+
 }

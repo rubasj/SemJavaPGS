@@ -1,6 +1,11 @@
 import java.io.IOException;
 import java.util.Random;
 
+/**
+ * Class represent Lorry
+ * @author Jan Rubas
+ * @version 3.0
+ */
 public class Lorry implements Runnable{
 
     /** Ferry for resources */
@@ -23,8 +28,10 @@ public class Lorry implements Runnable{
     /** Number of created lorries, index is part of name, first lorry is 1 */
     public static int numberOfLorries = 1;
 
+    /** is last lorry ? */
+    public boolean isLast = false;
     /** Lorry name */
-    private String name;
+    private final String name;
 
     /**
      * Class constructor fill instance params.
@@ -46,7 +53,10 @@ public class Lorry implements Runnable{
      */
     public synchronized boolean loadOnLorry(Worker worker, boolean lastBLock) throws InterruptedException {
         // capacity is full
-        if (maxCapacity == currCapacity) return false;
+        if (maxCapacity == currCapacity) {
+            return false;
+        }
+
 
         // time to transfer to lorry
         try {
@@ -65,7 +75,7 @@ public class Lorry implements Runnable{
 
                 long end = System.currentTimeMillis();
                 try {
-                    worker.foreman.out.write(String.format("%.2f;%s;Lorry is full;%.2f\n",
+                    Foreman.out.write(String.format("%.2f;%s;is full;%.2f\n",
                             (double) (end - Main.start) / 1000, name, (double) (end - this.loadTimeStart) / 1000));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -74,7 +84,7 @@ public class Lorry implements Runnable{
                 // if  without work !=  cWorker && !lastResource
                 if (!(worker.foreman.getWithoutWork() == CommandLineArgs.cWorker && lastBLock)) {
                     numberOfLorries++;
-                    Worker.lorry = new Lorry();
+                    worker.foreman.newLorry();
                     return true;
                 }
             }else {
@@ -98,8 +108,9 @@ public class Lorry implements Runnable{
             long start  = System.currentTimeMillis();
             Thread.sleep(tCurrLorry);
             long end = System.currentTimeMillis();
-            // TODO write to file
-            System.out.printf("%.2f;%s;Lorry arrived to ferry;%.2f\n", (double)(end-Main.start) / 1000, name, (double)(end - start)/1000);
+            System.out.println(String.format("%.2f;%s;arrived to ferry;%.2f\n", (double)(end-Main.start) / 1000, name, (double)(end - start)/1000));
+
+            Foreman.out.write(String.format("%.2f;%s;arrived to ferry;%.2f\n", (double)(end-Main.start) / 1000, name, (double)(end - start)/1000));
 
             ferry.loadOnFerry(this);
 
@@ -111,8 +122,8 @@ public class Lorry implements Runnable{
             start = System.currentTimeMillis();
             Thread.sleep(tCurrLorry);
             end = System.currentTimeMillis();
-            System.out.printf("%.2f;%s;Lorry arrived to END;%.2f\n", (double)(end-Main.start) / 1000, name, (double)(end - start)/1000);
-        } catch (InterruptedException e) {
+            Foreman.out.write(String.format("%.2f;%s;arrived to END;%.2f\n", (double)(end-Main.start) / 1000, name, (double)(end - start)/1000));
+        } catch (InterruptedException | IOException e) {
         e.printStackTrace();
     }
     }
