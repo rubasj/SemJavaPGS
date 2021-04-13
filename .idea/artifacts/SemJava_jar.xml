@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SemJava:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SemJava_jar</output-path>
+    <root id="archive" name="SemJava.jar">
+      <element id="module-output" name="SemJava" />
+    </root>
+  </artifact>
+</component>

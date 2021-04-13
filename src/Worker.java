@@ -7,14 +7,6 @@ import java.util.Random;
  */
 public class Worker implements Runnable{
 
-    /**
-     * Getter for total count of blocks.
-     * @return total count of blocks
-     */
-    public int getTotalCountOfMinedBlocks() {
-        return totalCountOfMinedBlocks;
-    }
-
     /** total count of blocks */
     private int totalCountOfMinedBlocks = 0;
 

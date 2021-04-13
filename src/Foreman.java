@@ -84,9 +84,9 @@ public class Foreman implements Runnable {
         try {
 
             out.write("\n########### LEGEND ###########\n");
-            out.write("# For workers \n #\t <runtime>;<workername>;<action>;<time for action> ");
-            out.write("# For lorries \n #\t <runtime>;<lorryname>;<action>;<time for action> ");
-            out.write("# For ferry \n #\t <runtime>;<Ferry>;<action>;<time for filling> ");
+            out.write("# For workers\n#\t <runtime>;<workername>;<action>;<time for action>\n");
+            out.write("# For lorries\n#\t <runtime>;<lorryname>;<action>;<time for action>\n");
+            out.write("# For ferry\n#<runtime>;<Ferry>;<action>;<time for filling>\n");
 
 
             /* creating workers  */
@@ -207,11 +207,4 @@ public class Foreman implements Runnable {
         return withoutWork;
     }
 
-    /**
-     * Get count of workers
-     * @return count of workers
-     */
-    public int getCWorker() {
-        return CommandLineArgs.cWorker;
-    }
 }
