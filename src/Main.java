@@ -18,16 +18,19 @@ public class Main {
     public static void main(String[] args) {
         System.out.println(Arrays.toString(args));
 
-        CommandLineArgs arguments = new CommandLineArgs(args);
-        start = System.currentTimeMillis();
-        Foreman foreman = new Foreman(); // instance of foreman
+        if (args.length == 14) {
+            CommandLineArgs arguments = new CommandLineArgs(args);
+            start = System.currentTimeMillis();
+            Foreman foreman = new Foreman(); // instance of foreman
 
 
-        try {
-            foreman.thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            try {
+                foreman.thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else
+            System.out.println("Expected 14 arguments.");
 
     }
 }

@@ -38,7 +38,7 @@ public class Lorry implements Runnable{
      */
     public Lorry() {
 
-        this.name = "Lorry" + numberOfLorries;
+        this.name = "Lorry["+ numberOfLorries +"]";
         thread = new Thread(this);
         maxCapacity = CommandLineArgs.capLorry;
         tLorryMax = CommandLineArgs.tLorry;
@@ -52,6 +52,7 @@ public class Lorry implements Runnable{
      * @return if loading was success, return true
      */
     public synchronized boolean loadOnLorry(Worker worker, boolean lastBLock) throws InterruptedException {
+
         // capacity is full
         if (maxCapacity == currCapacity) {
             return false;
@@ -60,7 +61,7 @@ public class Lorry implements Runnable{
 
         // time to transfer to lorry
         try {
-            Thread.sleep(1000);
+            Thread.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -78,13 +79,13 @@ public class Lorry implements Runnable{
                     Foreman.out.write(String.format("%.2f;%s;is full;%.2f\n",
                             (double) (end - Main.start) / 1000, name, (double) (end - this.loadTimeStart) / 1000));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("Lorry: " +  Foreman.OUT_EXCEPTION);
                 }
 
                 // if  without work !=  cWorker && !lastResource
-                if (!(worker.foreman.getWithoutWork() == CommandLineArgs.cWorker && lastBLock)) {
+                if (!(Foreman.getWithoutWork() == CommandLineArgs.cWorker && lastBLock)) {
                     numberOfLorries++;
-                    worker.foreman.newLorry();
+                    Foreman.newLorry();
                     return true;
                 }
             }else {

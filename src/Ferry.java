@@ -3,7 +3,7 @@
  * @author Jan Rubas
  * @version 1.2
  */
-public class Ferry {
+public class Ferry extends Lorry {
 
     /** barrier */
     static Barrier barrier;
@@ -14,7 +14,7 @@ public class Ferry {
     public Ferry() {
         // max capacity of ferry
         int maxCapacity = CommandLineArgs.capFerry;
-        barrier = new Barrier(maxCapacity / CommandLineArgs.capLorry);
+        barrier = new Barrier(maxCapacity);
     }
 
     /** load lorry capacity to ferry */

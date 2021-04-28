@@ -45,7 +45,7 @@ public class Worker implements Runnable{
 
         int blocksCount;
         // is there more resources
-        while ((blocksCount = foreman.getResources(thread.getName())) != -1) {  // if is returned -1, the resources were mined
+        while ((blocksCount = foreman.getResources()) != -1) {  // if is returned -1, the resources were mined
 //            System.out.println(thread.getName() + " carries " + blocksCount + " blocks.");
             try {
 //                Foreman.out.write(thread.getName() + " carries " + blocksCount + " blocks.\n");
@@ -64,10 +64,7 @@ public class Worker implements Runnable{
                 boolean lastBlock = false;
                 for (int i = 0; i < blocksCount; i++) {
                     if (i == blocksCount-1) lastBlock = true;
-                    // if lorry list is empty
-                    if (foreman.lorries.isEmpty()) {
-                        foreman.lorries.add(new Lorry());
-                    }
+
                     // load source by source
                     if (!foreman.lorries.get(foreman.lorries.size()-1).loadOnLorry(this, lastBlock)) i--;
                 }

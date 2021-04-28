@@ -19,14 +19,17 @@ public class Foreman implements Runnable {
      */
     public static BufferedWriter out;
 
+    /** exception problem  - output */
+    public static final String OUT_EXCEPTION = "Output: Writing fault";
+
 
     /**
      * Count of workers without work (in the end of mining)
      */
-    private int withoutWork;
+    private static int withoutWork;
 
     private Worker[] workers;
-    public List<Lorry> lorries;
+    public static List<Lorry> lorries;
     private FileWriter fw;
     /**
      * Constructor
@@ -41,12 +44,10 @@ public class Foreman implements Runnable {
             System.out.println(CommandLineArgs.outputFile);
             fw = new FileWriter(CommandLineArgs.outputFile);
             out = new BufferedWriter(fw);
-//            out.write("\nOutput file = \"" + CommandLineArgs.outputFile + "\".\n");
             System.out.println("Output file = \"" + CommandLineArgs.outputFile + "\".");
 
             // init Input file
             System.out.println("Input file = \"" + CommandLineArgs.inputFile + "\".");
-//            out.write("\nInput file = \"" + CommandLineArgs.inputFile + "\"." + "\n");
 
 
 
@@ -58,14 +59,16 @@ public class Foreman implements Runnable {
 
             System.out.println("Lorry capacity: " + CommandLineArgs.capLorry);
 
-
             System.out.println("Max lorry time for achieve destination: " + CommandLineArgs.tLorry);
 
             System.out.println("Ferry capacity: " + CommandLineArgs.capFerry);
             System.out.println();
             initResources(CommandLineArgs.inputFile);
-        } catch (NumberFormatException | IOException e) {
+        } catch (NumberFormatException e) {
+            System.err.println("Some parameter is wrong.");
             System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Output: Output file does not loaded.");
         }
         thread = new Thread(this);      // thread init
         thread.start(); // starting
@@ -95,7 +98,8 @@ public class Foreman implements Runnable {
             }
 
             try {
-
+                // lorry list is empty, we have to add first lorry before simulation
+                newLorry();
                 for (Worker worker :
                         workers) {
 //                    System.out.println(worker.thread.getName() + " mined " + worker.getTotalCountOfMinedBlocks() + " blocks.");
@@ -115,20 +119,20 @@ public class Foreman implements Runnable {
                         totalMinedBlocks.addAndGet(lorry.getCurrCapacity());
                         lorry.thread.join();
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        System.err.println("Lorry " + lorry  + " does not canceled.");
                     }
                 });
                 System.out.println("Total mined blocks which arrived to goal: " + totalMinedBlocks.get());
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("Foreman: interrupted exception.");
             }
 
 
             out.close(); // close output file
             fw.close();
         } catch (IOException e) {
-            System.err.println("Problem with buffered writer.");
+            System.err.println("Writer: Problem in foreman.");
         }
     }
 
@@ -136,7 +140,7 @@ public class Foreman implements Runnable {
      * Method gives the blocks to be mined
      * It is critical section, because Workers are threads which can call these method at the same moment.
      */
-    public synchronized int getResources(String name) {
+    public synchronized int getResources() {
 
         if (!resources.isEmpty()) {
             return resources.remove(0);
@@ -151,14 +155,14 @@ public class Foreman implements Runnable {
      * Foreman initialize resources.
      * @param inputFile input
      */
-    private void initResources(String inputFile) {
+    private void initResources(String inputFile) throws IOException {
         resources = new ArrayList<>(); // list of resources
         int blocksCount = 0;    //number of block in a resource
         FileReader fr = null;
         try {
             fr = new FileReader(inputFile);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("Initialize resources: " + inputFile + " does not exist.");
         }
 
         BufferedReader in = new BufferedReader(fr);
@@ -167,7 +171,7 @@ public class Foreman implements Runnable {
         int totalCountOfBlocks = 0;
         try {
             while ((ch = in.read()) != -1 || blocksCount > 0) {
-                if (ch == 'x') {
+                if (ch == 'X') {
                     blocksCount++;
                     continue;
                 }
@@ -187,7 +191,9 @@ public class Foreman implements Runnable {
 
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Initialize resources: Problem with Input / Output file.");
+        } finally {
+            in.close();
         }
     }
 
@@ -195,7 +201,7 @@ public class Foreman implements Runnable {
     /**
      * Add new lorry to list
       */
-    public synchronized void newLorry() {
+    public synchronized static void newLorry() {
         lorries.add(lorries.size(), new Lorry());
     }
 
@@ -203,7 +209,7 @@ public class Foreman implements Runnable {
      * Get count of workers without work
      * @return count of workers without work
      */
-    public int getWithoutWork() {
+    public static int getWithoutWork() {
         return withoutWork;
     }
 
